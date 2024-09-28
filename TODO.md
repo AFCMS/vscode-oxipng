@@ -1,0 +1,7 @@
+- [ ] Ready to publish
+  - [ ] Compile Rust code in release mode
+- [ ] GitHub CI
+- [ ] Configure optimisation options at workspace level (think about multi folder workspaces)
+- [ ] Recursive file optimisation (with progress)
+- [ ] Extension icon
+- [ ] Allow the use of the host oxipng for local paths (with configuration)

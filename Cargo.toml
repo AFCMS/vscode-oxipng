@@ -1,0 +1,15 @@
+[package]
+name = "vsc-oxipng"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wit-bindgen = "0.32.0"
+
+[dependencies.oxipng]
+version = "9.1.2"
+default-features = false
+features = ["parallel", "zopfli", "freestanding", "filetime"]

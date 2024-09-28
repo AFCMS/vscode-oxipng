@@ -1,0 +1,67 @@
+{
+    "name": "oxipng",
+    "displayName": "Oxipng",
+    "description": "",
+    "version": "0.0.1",
+    "publisher": "AFCMS",
+    "license": "MIT",
+    "engines": {
+        "vscode": "^1.93.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [],
+    "main": "./dist/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "oxipng.helloWorld",
+                "title": "Hello World"
+            },
+            {
+                "command": "oxipng.optimisePng",
+                "title": "Oxipng: Optimise PNG"
+            }
+        ],
+        "menus": {
+            "commandPalette": [
+                {
+                    "command": "oxipng.optimisePng",
+                    "when": "false"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "command": "oxipng.optimisePng",
+                    "when": "!explorerResourceIsFolder && !explorerResourceReadonly"
+                }
+            ]
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "pnpm run package",
+        "build:dev": "tsx esbuild.config.mts && cargo build --target wasm32-unknown-unknown",
+        "build:prod": "tsx esbuild.config.mts --production && cargo build --target wasm32-unknown-unknown --release",
+        "package": "pnpm run check-types && pnpm run lint && pnpm run build:prod",
+        "check-types": "tsc --noEmit",
+        "lint": "eslint src",
+        "generate:model": "wit2ts --outDir ./src ./wit",
+        "serve": "serve --cors -l 5000 --ssl-cert $HOME/certs/localhost.pem --ssl-key $HOME/certs/localhost-key.pem"
+    },
+    "devDependencies": {
+        "@types/node": "20.x",
+        "@types/vscode": "^1.93.0",
+        "@typescript-eslint/eslint-plugin": "^8.3.0",
+        "@typescript-eslint/parser": "^8.3.0",
+        "esbuild": "^0.23.1",
+        "eslint": "^9.9.1",
+        "serve": "^14.2.3",
+        "tsx": "^4.19.1",
+        "typescript": "^5.5.4"
+    },
+    "packageManager": "pnpm@9.10.0+sha512.73a29afa36a0d092ece5271de5177ecbf8318d454ecd701343131b8ebc0c1a91c487da46ab77c8e596d6acf1461e3594ced4becedf8921b074fbd8653ed7051c",
+    "dependencies": {
+        "@vscode/wasm-component-model": "^1.0.0"
+    }
+}

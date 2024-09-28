@@ -1,0 +1,9 @@
+{
+    "search.exclude": {
+        "target": true,
+        "dist": true
+    },
+    "typescript.tsc.autoDetect": "off",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true
+}
