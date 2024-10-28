@@ -54,7 +54,7 @@
         "@types/vscode": "^1.94.0",
         "@typescript-eslint/eslint-plugin": "^8.3.0",
         "@typescript-eslint/parser": "^8.3.0",
-        "esbuild": "^0.23.1",
+        "esbuild": "^0.24.0",
         "eslint": "^9.9.1",
         "serve": "^14.2.3",
         "tsx": "^4.19.1",
