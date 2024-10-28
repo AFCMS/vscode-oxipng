@@ -8,6 +8,9 @@
     "engines": {
         "vscode": "^1.94.0"
     },
+    "extensionDependencies": [
+        "vscode.git"
+    ],
     "categories": [
         "Other"
     ],
