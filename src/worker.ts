@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2024 AFCMS <afcm.contact@gmail.com>
+// SPDX-License-Identifier: MIT
+
 import { Connection, RAL } from "@vscode/wasm-component-model";
 import { vscOxipng } from "./vscOxipng";
 
