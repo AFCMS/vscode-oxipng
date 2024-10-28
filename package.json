@@ -25,6 +25,10 @@
             {
                 "command": "oxipng.optimisePng",
                 "title": "Oxipng: Optimise PNG"
+            },
+            {
+                "command": "oxipng.optimisePngGitChanges",
+                "title": "Oxipng: Optimise PNGs in Git working changes"
             }
         ],
         "menus": {
@@ -37,7 +41,7 @@
             "explorer/context": [
                 {
                     "command": "oxipng.optimisePng",
-                    "when": "!explorerResourceIsFolder && !explorerResourceReadonly"
+                    "when": "!explorerResourceIsFolder && !explorerResourceReadonly && resourceExtname == '.png'"
                 }
             ]
         }
