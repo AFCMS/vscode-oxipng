@@ -49,7 +49,7 @@ jobs:
         run: pnpm run lint
 
       - name: Build VSCode Extension
-        run: pnpx vsce package
+        run: pnpx vsce package --no-dependencies
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
