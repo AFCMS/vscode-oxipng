@@ -20,7 +20,6 @@
     ],
     "activationEvents": [],
     "main": "./dist/main/extension.js",
-    "browser": "./dist/web/extension.js",
     "capabilities": {
         "untrustedWorkspaces": {
             "supported": "limited",

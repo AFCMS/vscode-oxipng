@@ -1,3 +1,4 @@
+.github/**
 .vscode/**
 .vscode-test/**
 out/**
@@ -13,6 +14,9 @@ vsc-extension-quickstart.md
 **/*.ts
 **/.vscode-test.*
 target/**
+!target/wasm32-unknown-unknown/release/vsc_oxipng.wasm
 Cargo.lock
 Cargo.toml
-
+.nvmrc
+wit/**
+*.png

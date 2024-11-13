@@ -57,7 +57,7 @@ async function main() {
     };
 
     const ctxMain = await esbuild.context(mainOptions);
-    const ctxWeb = await esbuild.context(webOptions);
+    // const ctxWeb = await esbuild.context(webOptions);
 
     await ctxMain.rebuild();
     await ctxMain.dispose();
