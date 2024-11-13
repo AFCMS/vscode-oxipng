@@ -21,15 +21,24 @@
     "activationEvents": [],
     "main": "./dist/main/extension.js",
     "browser": "./dist/web/extension.js",
+    "capabilities": {
+        "untrustedWorkspaces": {
+            "supported": "limited",
+            "description": "Can't access the host binary path in untrusted workspaces.",
+            "restrictedConfigurations": [
+                "oxipng.hostBinary"
+            ]
+        }
+    },
     "contributes": {
         "commands": [
             {
-                "command": "oxipng.helloWorld",
-                "title": "Hello World"
-            },
-            {
                 "command": "oxipng.optimisePng",
                 "title": "Oxipng: Optimise PNG"
+            },
+            {
+                "command": "oxipng.optimisePngFolder",
+                "title": "Oxipng: Optimise all PNGs"
             },
             {
                 "command": "oxipng.optimisePngGitChanges",
@@ -41,15 +50,83 @@
                 {
                     "command": "oxipng.optimisePng",
                     "when": "false"
+                },
+                {
+                    "command": "oxipng.optimisePngFolder",
+                    "when": "false"
                 }
             ],
             "explorer/context": [
                 {
                     "command": "oxipng.optimisePng",
-                    "when": "!explorerResourceIsFolder && !explorerResourceReadonly && resourceExtname == '.png'"
+                    "when": "!explorerResourceIsFolder && !explorerResourceReadonly && (resourceExtname == '.png' || resourceExtname == '.apng')"
+                },
+                {
+                    "command": "oxipng.optimisePngFolder",
+                    "when": "explorerResourceIsFolder && !explorerResourceReadonly"
+                }
+            ],
+            "scm/title": [
+                {
+                    "command": "oxipng.optimisePngGitChanges",
+                    "when": "scmProvider == 'git'"
                 }
             ]
-        }
+        },
+        "configuration": [
+            {
+                "title": "Oxipng",
+                "properties": {
+                    "oxipng.hostBinary": {
+                        "type": "string",
+                        "description": "",
+                        "default": "",
+                        "examples": [
+                            "~/.cargo/bin/oxipng"
+                        ],
+                        "ignoreSync": true
+                    },
+                    "oxipng.optimisationLevel": {
+                        "markdownDescription": "The optimisation level preset to use. The default level 2 is quite fast and provides good compression. Lower levels are faster, higher levels provide better compression, though with increasingly diminishing returns.",
+                        "type": "number",
+                        "description": "",
+                        "default": 2,
+                        "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6
+                        ],
+                        "markdownEnumDescriptions": [
+                            "`--zc 5 --fast` (1 trial, determined heuristically)",
+                            "`--zc 10 --fast` (1 trial, determined heuristically)",
+                            "`--zc 11 -f 0,1,6,7 --fast` (4 fast trials, 1 main trial)",
+                            "`--zc 11 -f 0,7,8,9` (4 trials)",
+                            "`--zc 12 -f 0,7,8,9` (4 trials)",
+                            "`--zc 12 -f 0,1,2,5,6,7,8,9` (8 trials)",
+                            "`--zc 12 -f 0-9` (10 trials)"
+                        ]
+                    },
+                    "oxipng.stripMetadata": {
+                        "type": "string",
+                        "default": "none",
+                        "enum": [
+                            "none",
+                            "safe",
+                            "all"
+                        ],
+                        "markdownEnumDescriptions": [
+                            "Do not strip metadata",
+                            "Strip all non-critical chunks, except for the following: cICP, iCCP, sRGB, pHYs, acTL, fcTL, fdAT",
+                            "Strip all non-critical chunks, except for the following: acTL, fcTL, fdAT (used for APNGs frames)"
+                        ]
+                    }
+                }
+            }
+        ]
     },
     "scripts": {
         "vscode:prepublish": "pnpm run package",

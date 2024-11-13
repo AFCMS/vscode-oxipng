@@ -3,9 +3,14 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import * as $wcm from "@vscode/wasm-component-model";
-import type { u64, i32, i64, ptr } from "@vscode/wasm-component-model";
+import type { u8, i32, ptr } from "@vscode/wasm-component-model";
 
 export namespace vscOxipng {
+    export enum StripMetadata {
+        none = "none",
+        safe = "safe",
+        all = "all",
+    }
     export type Imports = {
         log: (msg: string) => void;
     };
@@ -16,8 +21,7 @@ export namespace vscOxipng {
         export type Promisify<T> = $wcm.$imports.Promisify<T>;
     }
     export type Exports = {
-        add: (left: u64, right: u64) => u64;
-        optimise: (data: Uint8Array) => Uint8Array;
+        optimise: (data: Uint8Array, preset: u8, strip: StripMetadata) => Uint8Array;
     };
     export namespace Exports {
         export type Promisified = $wcm.$exports.Promisify<Exports>;
@@ -28,21 +32,18 @@ export namespace vscOxipng {
 }
 
 export namespace vscOxipng.$ {
+    export const StripMetadata = new $wcm.EnumType<StripMetadata>(["none", "safe", "all"]);
     export namespace imports {
         export const log = new $wcm.FunctionType<vscOxipng.Imports["log"]>("log", [["msg", $wcm.wstring]], undefined);
     }
     export namespace exports {
-        export const add = new $wcm.FunctionType<vscOxipng.Exports["add"]>(
-            "add",
-            [
-                ["left", $wcm.u64],
-                ["right", $wcm.u64],
-            ],
-            $wcm.u64
-        );
         export const optimise = new $wcm.FunctionType<vscOxipng.Exports["optimise"]>(
             "optimise",
-            [["data", new $wcm.Uint8ArrayType()]],
+            [
+                ["data", new $wcm.Uint8ArrayType()],
+                ["preset", $wcm.u8],
+                ["strip", StripMetadata],
+            ],
             new $wcm.Uint8ArrayType()
         );
     }
@@ -66,17 +67,19 @@ export namespace vscOxipng._ {
         $root: $Root;
     };
     export namespace exports {
-        export const functions: Map<string, $wcm.FunctionType> = new Map([
-            ["add", $.exports.add],
-            ["optimise", $.exports.optimise],
-        ]);
+        export const functions: Map<string, $wcm.FunctionType> = new Map([["optimise", $.exports.optimise]]);
         export function bind(exports: Exports, context: $wcm.WasmContext): vscOxipng.Exports {
             return $wcm.$exports.bind<vscOxipng.Exports>(_, exports, context);
         }
     }
     export type Exports = {
-        add: (left: i64, right: i64) => i64;
-        optimise: (data_ptr: i32, data_len: i32, result: ptr<Uint8Array>) => void;
+        optimise: (
+            data_ptr: i32,
+            data_len: i32,
+            preset: i32,
+            strip_StripMetadata: i32,
+            result: ptr<Uint8Array>
+        ) => void;
     };
     export function bind(
         service: vscOxipng.Imports,

@@ -1,7 +1,12 @@
 package afcms:vsc-oxipng;
 
 world vsc-oxipng {
+    enum strip-metadata {
+        none,
+        safe,
+        all,
+    }
+
     import log: func(msg: string);
-    export add: func(left: u64, right: u64) -> u64;
-    export optimise: func(data: list<u8>) -> list<u8>;
+    export optimise: func(data: list<u8>, preset: u8, strip: strip-metadata) -> list<u8>;
 }
