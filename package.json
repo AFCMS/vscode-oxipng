@@ -11,11 +11,16 @@
     "extensionDependencies": [
         "vscode.git"
     ],
+    "extensionKind": [
+        "workspace",
+        "ui"
+    ],
     "categories": [
         "Other"
     ],
     "activationEvents": [],
-    "main": "./dist/extension.js",
+    "main": "./dist/main/extension.js",
+    "browser": "./dist/web/extension.js",
     "contributes": {
         "commands": [
             {
@@ -62,6 +67,7 @@
         "@typescript-eslint/eslint-plugin": "^8.3.0",
         "@typescript-eslint/parser": "^8.3.0",
         "esbuild": "^0.24.0",
+        "esbuild-plugins-node-modules-polyfill": "^1.6.7",
         "eslint": "^9.9.1",
         "serve": "^14.2.3",
         "tsx": "^4.19.1",

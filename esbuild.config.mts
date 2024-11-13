@@ -2,6 +2,8 @@
 
 import esbuild from "esbuild";
 
+import { nodeModulesPolyfillPlugin } from "esbuild-plugins-node-modules-polyfill";
+
 const production = process.argv.includes("--production");
 
 const esbuildProblemMatcherPlugin: esbuild.Plugin = {
@@ -24,25 +26,44 @@ const esbuildProblemMatcherPlugin: esbuild.Plugin = {
 };
 
 async function main() {
-    const ctx = await esbuild.context({
+    const sharedOptions: esbuild.BuildOptions = {
         entryPoints: ["src/extension.ts", "src/worker.ts"],
         bundle: true,
+        target: "es2020",
         format: "cjs",
+        external: ["vscode"],
         minify: production,
         sourcemap: !production,
-        sourcesContent: false,
-        platform: "node",
-        outdir: "dist",
-        external: ["vscode"],
         logLevel: "silent",
+    };
+
+    const mainOptions: esbuild.BuildOptions = {
+        ...sharedOptions,
+        platform: "node",
+        outdir: "dist/main",
+        plugins: [esbuildProblemMatcherPlugin],
+    };
+
+    const webOptions: esbuild.BuildOptions = {
+        ...sharedOptions,
+        platform: "browser",
+        outdir: "dist/web",
         plugins: [
-            /* add to the end of plugins array */
+            nodeModulesPolyfillPlugin({
+                modules: ["node:path", "node:worker_threads"],
+            }),
             esbuildProblemMatcherPlugin,
         ],
-    });
+    };
 
-    await ctx.rebuild();
-    await ctx.dispose();
+    const ctxMain = await esbuild.context(mainOptions);
+    const ctxWeb = await esbuild.context(webOptions);
+
+    await ctxMain.rebuild();
+    await ctxMain.dispose();
+
+    // await ctxWeb.rebuild();
+    // await ctxWeb.dispose();
 }
 
 main().catch((e) => {
