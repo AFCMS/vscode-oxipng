@@ -14,7 +14,7 @@ async function loadWasmModule(context: vscode.ExtensionContext) {
         context.extensionUri,
         "target",
         "wasm32-unknown-unknown",
-        "debug", // TODO: Change to release
+        context.extensionMode === vscode.ExtensionMode.Production ? "release" : "debug",
         "vsc_oxipng.wasm"
     );
 
