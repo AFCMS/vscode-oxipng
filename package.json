@@ -8,6 +8,7 @@
         "type": "git",
         "url": "https://github.com/AFCMS/vscode-oxipng"
     },
+    "pricing": "Free",
     "license": "MIT",
     "engines": {
         "vscode": "^1.94.0"
