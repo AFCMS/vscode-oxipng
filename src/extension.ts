@@ -25,7 +25,16 @@ async function loadWasmModule(context: vscode.ExtensionContext) {
     const bits = await vscode.workspace.fs.readFile(filename);
     const module = await WebAssembly.compile(bits);
 
-    const worker = new Worker(vscode.Uri.joinPath(context.extensionUri, "./dist/worker.js").fsPath);
+    const worker = new Worker(
+        vscode.Uri.joinPath(
+            context.extensionUri,
+            `./dist/${
+                context.extension.extensionKind === vscode.ExtensionKind.UI && vscode.env.uiKind === vscode.UIKind.Web
+                    ? "web"
+                    : "main"
+            }/worker.js`
+        ).fsPath
+    );
 
     const service: vscOxipng.Imports.Promisified = {
         log: (msg: string) => {
