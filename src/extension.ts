@@ -8,6 +8,8 @@ import { Worker } from "node:worker_threads";
 
 import { vscOxipng } from "./vscOxipng";
 import { GitExtension, Repository } from "./types/git";
+import { gitModifiedPNGs } from "./utils/git";
+import { fileName, readDirectoryRecursivePNGs } from "./utils/files";
 
 async function loadWasmModule(context: vscode.ExtensionContext) {
     const filename = vscode.Uri.joinPath(
@@ -61,10 +63,6 @@ function savingsStringPercent(in_len: number, out_len: number): string {
         : `(${(((out_len - in_len) / in_len) * 100).toFixed(2)}% larger)`;
 }
 
-async function gitModifiedFiles(repo: Repository): Promise<vscode.Uri[]> {
-    return (await repo.diffWithHEAD()).map((change) => change.uri);
-}
-
 export async function activate(context: vscode.ExtensionContext) {
     console.log('Congratulations, your extension "oxipng" is now active!');
 
@@ -84,6 +82,44 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.window.showInformationMessage(savings);
         vscode.workspace.fs.writeFile(param, out_data);
     });
+
+    const commandOptimiseFolder = vscode.commands.registerCommand(
+        "oxipng.optimisePngFolder",
+        async (param: vscode.Uri) => {
+            const files = await readDirectoryRecursivePNGs(param);
+
+            console.log(files);
+
+            const pngFilesCount = files.length;
+
+            let pngSavingsIn = 0;
+            let pngSavingsOut = 0;
+
+            await vscode.window.withProgress(
+                { location: vscode.ProgressLocation.Notification, title: "Optimising PNGs" },
+                async (progress) => {
+                    progress.report({ increment: 0, message: "Starting..." });
+
+                    for (let i = 0; i < pngFilesCount; i++) {
+                        const file = files[i];
+                        progress.report({ increment: 100 / pngFilesCount, message: fileName(file) });
+
+                        const in_data = await vscode.workspace.fs.readFile(file);
+                        const out_data = await api.optimise(in_data, 1, vscOxipng.StripMetadata.safe);
+
+                        pngSavingsIn += in_data.length;
+                        pngSavingsOut += out_data.length;
+
+                        vscode.workspace.fs.writeFile(file, out_data);
+                    }
+                }
+            );
+
+            vscode.window.showInformationMessage(
+                "Optimised " + pngFilesCount + " PNGs " + savingsStringPercent(pngSavingsIn, pngSavingsOut)
+            );
+        }
+    );
 
     const commandOptimiseGitChanges = vscode.commands.registerCommand(
         "oxipng.optimisePngGitChanges",
@@ -120,9 +156,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
-            const modifiedFiles = await gitModifiedFiles(repo);
-
-            const pngFiles = modifiedFiles.filter((file) => file.fsPath.endsWith(".png"));
+            const pngFiles = await gitModifiedPNGs(repo);
             const pngFilesCount = pngFiles.length;
 
             let pngSavingsIn = 0;
@@ -156,7 +190,7 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     );
 
-    context.subscriptions.push(commandOptimise, commandOptimiseGitChanges);
+    context.subscriptions.push(commandOptimise, commandOptimiseFolder, commandOptimiseGitChanges);
 }
 
 export function deactivate() {}
