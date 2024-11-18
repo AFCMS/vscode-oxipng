@@ -4,49 +4,11 @@
 import path from "node:path";
 
 import * as vscode from "vscode";
-import { Worker } from "node:worker_threads";
 
-import { vscOxipng } from "./vscOxipng";
 import { GitExtension, Repository } from "./types/git";
 import { gitModifiedPNGs } from "./utils/git";
 import { fileName, readDirectoryRecursivePNGs } from "./utils/files";
-
-async function loadWasmModule(context: vscode.ExtensionContext) {
-    const filename = vscode.Uri.joinPath(
-        context.extensionUri,
-        "target",
-        "wasm32-unknown-unknown",
-        context.extensionMode === vscode.ExtensionMode.Production ? "release" : "debug",
-        "vsc_oxipng.wasm"
-    );
-
-    // The channel for printing the log.
-    const log = vscode.window.createOutputChannel("Oxipng - Worker", { log: true });
-    context.subscriptions.push(log);
-
-    const bits = await vscode.workspace.fs.readFile(filename);
-    const module = await WebAssembly.compile(bits);
-
-    const worker = new Worker(
-        vscode.Uri.joinPath(
-            context.extensionUri,
-            `./dist/${
-                context.extension.extensionKind === vscode.ExtensionKind.UI && vscode.env.uiKind === vscode.UIKind.Web
-                    ? "web"
-                    : "main"
-            }/worker.js`
-        ).fsPath
-    );
-
-    const service: vscOxipng.Imports.Promisified = {
-        log: (msg: string) => {
-            log.info(msg);
-        },
-    };
-
-    // Bind the TypeScript Api
-    return await vscOxipng._.bind(service, module, worker);
-}
+import { OxipngOptimiser, OxipngStripLevel } from "./optimiser";
 
 /**
  * Returns a string describing the savings in bytes and percentage.
@@ -66,15 +28,16 @@ function savingsStringPercent(in_len: number, out_len: number): string {
 export async function activate(context: vscode.ExtensionContext) {
     console.log('Congratulations, your extension "oxipng" is now active!');
 
-    const api = await loadWasmModule(context);
     const gitExt = vscode.extensions.getExtension<GitExtension>("vscode.git")?.exports;
 
     const gitApi = gitExt?.getAPI(1);
 
+    const api = new OxipngOptimiser(context);
+
     const commandOptimise = vscode.commands.registerCommand("oxipng.optimisePng", async (param: vscode.Uri) => {
         vscode.window.showInformationMessage("Called: " + param.fsPath);
         const in_data = await vscode.workspace.fs.readFile(param);
-        const out_data = await api.optimise(in_data, 2, vscOxipng.StripMetadata.safe);
+        const out_data = await api.optimiseData(in_data, 2, OxipngStripLevel.Safe);
         vscode.window.showInformationMessage("Optimised: " + param.fsPath);
 
         const savings = savingsString(in_data.length, out_data.length);
@@ -88,9 +51,12 @@ export async function activate(context: vscode.ExtensionContext) {
         async (param: vscode.Uri) => {
             const files = await readDirectoryRecursivePNGs(param);
 
-            console.log(files);
-
             const pngFilesCount = files.length;
+
+            if (pngFilesCount === 0) {
+                vscode.window.showInformationMessage("No PNGs found");
+                return;
+            }
 
             let pngSavingsIn = 0;
             let pngSavingsOut = 0;
@@ -102,10 +68,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
                     for (let i = 0; i < pngFilesCount; i++) {
                         const file = files[i];
-                        progress.report({ increment: 100 / pngFilesCount, message: fileName(file) });
+                        progress.report({
+                            increment: 100 / pngFilesCount,
+                            message: `(${i + 1}/${pngFilesCount}) ` + fileName(file),
+                        });
 
                         const in_data = await vscode.workspace.fs.readFile(file);
-                        const out_data = await api.optimise(in_data, 1, vscOxipng.StripMetadata.safe);
+                        const out_data = await api.optimiseData(in_data, 6, OxipngStripLevel.Safe);
 
                         pngSavingsIn += in_data.length;
                         pngSavingsOut += out_data.length;
@@ -159,6 +128,11 @@ export async function activate(context: vscode.ExtensionContext) {
             const pngFiles = await gitModifiedPNGs(repo);
             const pngFilesCount = pngFiles.length;
 
+            if (pngFilesCount === 0) {
+                vscode.window.showInformationMessage("No PNGs found");
+                return;
+            }
+
             let pngSavingsIn = 0;
             let pngSavingsOut = 0;
 
@@ -169,10 +143,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
                     for (let i = 0; i < pngFilesCount; i++) {
                         const file = pngFiles[i];
-                        progress.report({ increment: 100 / pngFilesCount, message: path.parse(file.fsPath).base });
+                        progress.report({
+                            increment: 100 / pngFilesCount,
+                            message: `(${i + 1}/${pngFilesCount}) ` + path.parse(file.fsPath).base,
+                        });
 
                         const in_data = await vscode.workspace.fs.readFile(file);
-                        const out_data = await api.optimise(in_data, 1, vscOxipng.StripMetadata.safe);
+                        const out_data = await api.optimiseData(in_data, 1, OxipngStripLevel.Safe);
 
                         await new Promise((resolve) => setTimeout(resolve, 2000));
 
