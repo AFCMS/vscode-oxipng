@@ -26,6 +26,7 @@
     "activationEvents": [],
     "main": "./dist/main/extension.js",
     "capabilities": {
+        "virtualWorkspaces": true,
         "untrustedWorkspaces": {
             "supported": "limited",
             "description": "Can't access the host binary path in untrusted workspaces.",
@@ -83,12 +84,17 @@
                 "properties": {
                     "oxipng.hostBinary": {
                         "type": "string",
-                        "description": "",
+                        "markdownDescription": "Path to a oxipng host binary. If not provided, the extension will use the bundled WASM oxipng.",
                         "default": "",
                         "examples": [
                             "~/.cargo/bin/oxipng"
                         ],
                         "ignoreSync": true
+                    },
+                    "oxipng.preferBundled": {
+                        "type": "boolean",
+                        "markdownDescription": "Prefer to use the bundled WASM oxipng even if a host binary is provided",
+                        "default": false
                     },
                     "oxipng.optimisationLevel": {
                         "markdownDescription": "The optimisation level preset to use. The default level 2 is quite fast and provides good compression. Lower levels are faster, higher levels provide better compression, though with increasingly diminishing returns.",
