@@ -10,6 +10,6 @@ crate-type = ["cdylib"]
 wit-bindgen = "0.32.0"
 
 [dependencies.oxipng]
-version = "9.1.2"
+version = "9.1.3"
 default-features = false
 features = ["parallel", "zopfli", "freestanding", "filetime"]
