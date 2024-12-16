@@ -32,6 +32,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
     const gitApi = gitExt?.getAPI(1);
 
+    vscode.commands.executeCommand(
+        "setContext",
+        "oxipng.webOnly",
+        context.extension.extensionKind === vscode.ExtensionKind.UI && vscode.env.uiKind === vscode.UIKind.Web
+    );
+
     const api = new OxipngOptimiser(context);
 
     const commandOptimise = vscode.commands.registerCommand("oxipng.optimisePng", async (param: vscode.Uri) => {
