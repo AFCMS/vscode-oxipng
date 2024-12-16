@@ -50,6 +50,10 @@
             {
                 "command": "oxipng.optimisePngGitChanges",
                 "title": "Oxipng: Optimise PNGs in Git working changes"
+            },
+            {
+                "command": "oxipng.checkHostInstall",
+                "title": "Oxipng: Check host binary install"
             }
         ],
         "menus": {
@@ -61,6 +65,10 @@
                 {
                     "command": "oxipng.optimisePngFolder",
                     "when": "false"
+                },
+                {
+                    "command": "oxipng.checkHostInstall",
+                    "when": "!oxipng.webOnly"
                 }
             ],
             "explorer/context": [
