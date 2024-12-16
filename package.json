@@ -23,7 +23,9 @@
     "categories": [
         "Other"
     ],
-    "activationEvents": [],
+    "activationEvents": [
+        "workspaceContains:{**/*.png,**/*.apng}"
+    ],
     "main": "./dist/main/extension.js",
     "capabilities": {
         "virtualWorkspaces": true,
