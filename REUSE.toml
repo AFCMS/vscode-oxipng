@@ -1,0 +1,5 @@
+version = 1
+SPDX-PackageName = "VSCode Oxipng"
+SPDX-PackageSupplier = "AFCMS <afcm.contact@gmail.com>"
+SPDX-PackageDownloadLocation = "https://github.com/AFCMS/vscode-oxipng"
+annotations = []
