@@ -11,7 +11,7 @@
     "pricing": "Free",
     "license": "MIT",
     "engines": {
-        "vscode": "^1.95.0"
+        "vscode": "^1.96.0"
     },
     "extensionDependencies": [
         "vscode.git"
@@ -165,7 +165,7 @@
     },
     "devDependencies": {
         "@types/node": "20.x",
-        "@types/vscode": "^1.95.0",
+        "@types/vscode": "^1.96.0",
         "@typescript-eslint/eslint-plugin": "^8.14.0",
         "@typescript-eslint/parser": "^8.14.0",
         "esbuild": "^0.24.0",
