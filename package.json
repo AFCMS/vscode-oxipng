@@ -143,6 +143,11 @@
                             "Strip all non-critical chunks, except for the following: cICP, iCCP, sRGB, pHYs, acTL, fcTL, fdAT",
                             "Strip all non-critical chunks, except for the following: acTL, fcTL, fdAT (used for APNGs frames)"
                         ]
+                    },
+                    "oxipng.useZopfli": {
+                        "type": "boolean",
+                        "default": false,
+                        "markdownDescription": "Use [Zopfli](https://github.com/google/zopfli) compression algorithm. This is MUCH slower but provides better compression."
                     }
                 }
             }
