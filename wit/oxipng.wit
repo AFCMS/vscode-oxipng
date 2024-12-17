@@ -8,5 +8,5 @@ world vsc-oxipng {
     }
 
     import log: func(msg: string);
-    export optimise: func(data: list<u8>, preset: u8, strip: strip-metadata) -> list<u8>;
+    export optimise: func(data: list<u8>, preset: u8, strip: strip-metadata, zopfli: bool) -> list<u8>;
 }

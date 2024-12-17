@@ -8,21 +8,21 @@ import * as vscode from "vscode";
 import { GitExtension, Repository } from "./types/git";
 import { gitModifiedPNGs } from "./utils/git";
 import { fileName, readDirectoryRecursivePNGs } from "./utils/files";
-import { OxipngOptimiser, OxipngStripLevel } from "./optimiser";
+import { OxipngOptimiser, OxipngSavings, OxipngStripLevel } from "./optimiser";
 
 /**
  * Returns a string describing the savings in bytes and percentage.
  */
-function savingsString(in_len: number, out_len: number): string {
-    return in_len >= out_len
-        ? `${out_len} bytes (${(((in_len - out_len) / in_len) * 100).toFixed(2)}% smaller)`
-        : `${out_len} bytes (${(((out_len - in_len) / in_len) * 100).toFixed(2)}% larger)`;
+function savingsString(s: OxipngSavings): string {
+    return s.in_len >= s.out_len
+        ? `${s.out_len} bytes (${(((s.in_len - s.out_len) / s.in_len) * 100).toFixed(2)}% smaller)`
+        : `${s.out_len} bytes (${(((s.out_len - s.in_len) / s.in_len) * 100).toFixed(2)}% larger)`;
 }
 
-function savingsStringPercent(in_len: number, out_len: number): string {
-    return in_len >= out_len
-        ? `(${(((in_len - out_len) / in_len) * 100).toFixed(2)}% smaller)`
-        : `(${(((out_len - in_len) / in_len) * 100).toFixed(2)}% larger)`;
+function savingsStringPercent(s: OxipngSavings): string {
+    return s.in_len >= s.out_len
+        ? `(${(((s.in_len - s.out_len) / s.in_len) * 100).toFixed(2)}% smaller)`
+        : `(${(((s.out_len - s.in_len) / s.in_len) * 100).toFixed(2)}% larger)`;
 }
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -40,16 +40,30 @@ export async function activate(context: vscode.ExtensionContext) {
 
     const api = new OxipngOptimiser(context);
 
+    const commandCheckHostInstall = vscode.commands.registerCommand("oxipng.checkHostInstall", async () => {
+        if (context.extension.extensionKind === vscode.ExtensionKind.UI && vscode.env.uiKind === vscode.UIKind.Web) {
+            vscode.window.showErrorMessage("This command isn't available in the web editor");
+            return;
+        }
+
+        const version = api.checkHostInstall();
+
+        if (version) {
+            vscode.window.showInformationMessage(`Oxipng version: ${version.major}.${version.minor}.${version.patch}`);
+        } else {
+            vscode.window.showErrorMessage("Invalid Oxipng host configuration", "Edit").then((value) => {
+                if (value === "Edit") {
+                    vscode.commands.executeCommand("workbench.action.openSettings", "oxipng.hostBinary");
+                }
+            });
+        }
+    });
+
     const commandOptimise = vscode.commands.registerCommand("oxipng.optimisePng", async (param: vscode.Uri) => {
-        vscode.window.showInformationMessage("Called: " + param.fsPath);
-        const in_data = await vscode.workspace.fs.readFile(param);
-        const out_data = await api.optimiseData(in_data, 2, OxipngStripLevel.Safe);
+        const savings = await api.optimiseFile(param, 2, OxipngStripLevel.Safe, true);
+
         vscode.window.showInformationMessage("Optimised: " + param.fsPath);
-
-        const savings = savingsString(in_data.length, out_data.length);
-
-        vscode.window.showInformationMessage(savings);
-        vscode.workspace.fs.writeFile(param, out_data);
+        vscode.window.showInformationMessage(savingsString(savings));
     });
 
     const commandOptimiseFolder = vscode.commands.registerCommand(
@@ -64,8 +78,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
-            let pngSavingsIn = 0;
-            let pngSavingsOut = 0;
+            const overallSavings: OxipngSavings = { in_len: 0, out_len: 0 };
 
             await vscode.window.withProgress(
                 { location: vscode.ProgressLocation.Notification, title: "Optimising PNGs" },
@@ -79,19 +92,16 @@ export async function activate(context: vscode.ExtensionContext) {
                             message: `(${i + 1}/${pngFilesCount}) ` + fileName(file),
                         });
 
-                        const in_data = await vscode.workspace.fs.readFile(file);
-                        const out_data = await api.optimiseData(in_data, 6, OxipngStripLevel.Safe);
+                        const savings = await api.optimiseFile(file, ...api.getConfig());
 
-                        pngSavingsIn += in_data.length;
-                        pngSavingsOut += out_data.length;
-
-                        vscode.workspace.fs.writeFile(file, out_data);
+                        overallSavings.in_len += savings.in_len;
+                        overallSavings.out_len += savings.out_len;
                     }
                 }
             );
 
             vscode.window.showInformationMessage(
-                "Optimised " + pngFilesCount + " PNGs " + savingsStringPercent(pngSavingsIn, pngSavingsOut)
+                "Optimised " + pngFilesCount + " PNGs " + savingsStringPercent(overallSavings)
             );
         }
     );
@@ -139,8 +149,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
-            let pngSavingsIn = 0;
-            let pngSavingsOut = 0;
+            const overallSavings: OxipngSavings = { in_len: 0, out_len: 0 };
 
             await vscode.window.withProgress(
                 { location: vscode.ProgressLocation.Notification, title: "Optimising PNGs" },
@@ -155,12 +164,12 @@ export async function activate(context: vscode.ExtensionContext) {
                         });
 
                         const in_data = await vscode.workspace.fs.readFile(file);
-                        const out_data = await api.optimiseData(in_data, 1, OxipngStripLevel.Safe);
+                        const [out_data, savings] = await api.optimiseData(in_data, ...api.getConfig());
 
                         await new Promise((resolve) => setTimeout(resolve, 2000));
 
-                        pngSavingsIn += in_data.length;
-                        pngSavingsOut += out_data.length;
+                        overallSavings.in_len += savings.in_len;
+                        overallSavings.out_len += savings.out_len;
 
                         vscode.workspace.fs.writeFile(file, out_data);
                     }
@@ -168,12 +177,17 @@ export async function activate(context: vscode.ExtensionContext) {
             );
 
             vscode.window.showInformationMessage(
-                "Optimised " + pngFilesCount + " PNGs " + savingsStringPercent(pngSavingsIn, pngSavingsOut)
+                "Optimised " + pngFilesCount + " PNGs " + savingsStringPercent(overallSavings)
             );
         }
     );
 
-    context.subscriptions.push(commandOptimise, commandOptimiseFolder, commandOptimiseGitChanges);
+    context.subscriptions.push(
+        commandCheckHostInstall,
+        commandOptimise,
+        commandOptimiseFolder,
+        commandOptimiseGitChanges
+    );
 }
 
 export function deactivate() {}

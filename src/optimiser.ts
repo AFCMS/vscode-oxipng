@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { Worker } from "node:worker_threads";
+import { spawnSync } from "node:child_process";
 
 import * as vscode from "vscode";
 
@@ -13,16 +14,35 @@ enum OxipngStripLevel {
     All = 2,
 }
 
+type OxipngSavings = {
+    in_len: number;
+    out_len: number;
+};
+
+type OxipngVersion = {
+    major: number;
+    minor: number;
+    patch: number;
+};
+
 class OxipngOptimiser {
     private context: vscode.ExtensionContext;
-    private log: vscode.LogOutputChannel;
+    private logWorker: vscode.LogOutputChannel;
+    private log: vscode.OutputChannel;
     private wasmApi: vscOxipng.Exports.Promisified | undefined;
 
     constructor(context: vscode.ExtensionContext) {
-        this.log = vscode.window.createOutputChannel("Oxipng - Worker", { log: true });
+        this.logWorker = vscode.window.createOutputChannel("Oxipng - Worker", { log: true });
+        this.log = vscode.window.createOutputChannel("Oxipng", { log: true });
         this.context = context;
 
-        this.context.subscriptions.push(this.log);
+        this.context.subscriptions.push(this.logWorker);
+    }
+
+    private isRunningInWeb(): boolean {
+        return (
+            this.context.extension.extensionKind === vscode.ExtensionKind.UI && vscode.env.uiKind === vscode.UIKind.Web
+        );
     }
 
     private getWasmStripLevel(level: OxipngStripLevel) {
@@ -51,18 +71,13 @@ class OxipngOptimiser {
         const worker = new Worker(
             vscode.Uri.joinPath(
                 this.context.extensionUri,
-                `./dist/${
-                    this.context.extension.extensionKind === vscode.ExtensionKind.UI &&
-                    vscode.env.uiKind === vscode.UIKind.Web
-                        ? "web"
-                        : "main"
-                }/worker.js`
+                `./dist/${this.isRunningInWeb() ? "web" : "main"}/worker.js`
             ).fsPath
         );
 
         const service: vscOxipng.Imports.Promisified = {
             log: (msg: string) => {
-                this.log.info(msg);
+                this.logWorker.info(msg);
             },
         };
 
@@ -70,12 +85,59 @@ class OxipngOptimiser {
         this.wasmApi = await vscOxipng._.bind(service, module, worker);
     }
 
+    static oxipngVersionPattern = new RegExp(/^oxipng (\d+).(\d+).(\d+)/);
+
+    static parseVersionString(version: string): OxipngVersion | undefined {
+        const result = OxipngOptimiser.oxipngVersionPattern.exec(version);
+        if (result) {
+            return {
+                major: parseInt(result[1]),
+                minor: parseInt(result[2]),
+                patch: parseInt(result[3]),
+            };
+        } else {
+            return undefined;
+        }
+    }
+
     public hostOxipng(): string | undefined {
-        return undefined;
+        const p = this.getConfigHostBinary();
+        return p === "" ? undefined : p;
     }
 
     public hasHostOxipng(): boolean {
         return this.hostOxipng() !== undefined;
+    }
+
+    public checkHostInstall(): OxipngVersion | undefined {
+        const hostPath = this.hostOxipng();
+        if (hostPath) {
+            const ttt = spawnSync(hostPath, ["--version"], {});
+            return OxipngOptimiser.parseVersionString(ttt.stdout.toString());
+        }
+        return undefined;
+    }
+
+    static oxipngParameterBuilder(level: number, strip: OxipngStripLevel, zopfli: boolean = false): string[] {
+        const options = ["-", "-o", level.toString(), "--stdout"];
+
+        switch (strip) {
+            case OxipngStripLevel.None:
+                options.push("--strip", "none");
+                break;
+            case OxipngStripLevel.Safe:
+                options.push("--strip", "safe");
+                break;
+            case OxipngStripLevel.All:
+                options.push("--keep", "acTL,fcTL,fdAT");
+                break;
+        }
+
+        if (zopfli) {
+            options.push("--zopfli");
+        }
+
+        return options;
     }
 
     public getConfigStripLevel(): OxipngStripLevel {
@@ -105,35 +167,94 @@ class OxipngOptimiser {
         return vscode.workspace.getConfiguration("oxipng").get<number>("optimisationLevel") || 2;
     }
 
-    private async optimiseDataWasm(data: Uint8Array, level: number, strip: OxipngStripLevel): Promise<Uint8Array> {
-        if (this.wasmApi === undefined) {
-            await this.loadWasmAPI();
-            this.wasmApi = this.wasmApi as unknown as vscOxipng.Exports.Promisified;
-        }
-
-        return this.wasmApi?.optimise(data, level, this.getWasmStripLevel(strip));
+    public getConfigZopfli(): boolean {
+        return vscode.workspace.getConfiguration("oxipng").get<boolean>("useZopfli") === true;
     }
 
-    private async optimiseFileWasm(uri: vscode.Uri, level: number, strip: OxipngStripLevel): Promise<void> {
+    /**
+     * Use to call optimiseData or optimiseFile with workspace configuration
+     *
+     * @returns [optimisationLevel, stripLevel, useZopfli]
+     */
+    public getConfig(): [number, OxipngStripLevel, boolean] {
+        return [this.getConfigOptimisationLevel(), this.getConfigStripLevel(), this.getConfigZopfli()];
+    }
+
+    private async optimiseDataWasm(
+        data: Uint8Array,
+        level: number,
+        strip: OxipngStripLevel,
+        zopfli: boolean
+    ): Promise<[Uint8Array, OxipngSavings]> {
         if (this.wasmApi === undefined) {
             await this.loadWasmAPI();
             this.wasmApi = this.wasmApi as unknown as vscOxipng.Exports.Promisified;
         }
+
+        const outData = await this.wasmApi?.optimise(data, level, this.getWasmStripLevel(strip), zopfli);
+
+        return [outData, { in_len: data.length, out_len: outData.length }];
+    }
+
+    /**
+     * @throws Error
+     */
+    private async optimiseDataHost(
+        data: Uint8Array,
+        level: number,
+        strip: OxipngStripLevel,
+        zopfli: boolean
+    ): Promise<[Uint8Array, OxipngSavings]> {
+        const hostPath = this.hostOxipng();
+        if (hostPath === undefined) {
+            throw new Error("No host binary found");
+        }
+
+        const options = OxipngOptimiser.oxipngParameterBuilder(level, strip, zopfli);
+
+        const t = spawnSync(hostPath, options, { input: data });
+        if (t.status !== 0) {
+            throw new Error("Oxipng failed: " + t.stderr.toString());
+        }
+
+        return [t.stdout, { in_len: data.length, out_len: t.stdout.length }];
+    }
+
+    public async optimiseData(
+        data: Uint8Array,
+        level: number,
+        strip: OxipngStripLevel,
+        zopfli: boolean
+    ): Promise<[Uint8Array, OxipngSavings]> {
+        if (this.isRunningInWeb() || this.getConfigPreferBundeled()) {
+            return this.optimiseDataWasm(data, level, strip, zopfli);
+        }
+
+        return this.optimiseDataHost(data, level, strip, zopfli);
+    }
+
+    public async optimiseFile(
+        uri: vscode.Uri,
+        level: number,
+        strip: OxipngStripLevel,
+        zopfli: boolean
+    ): Promise<OxipngSavings> {
+        // return this.optimiseFileHost(uri, level, strip);
+        // return this.optimiseFileWasm(uri, level, strip);
 
         const in_data = await vscode.workspace.fs.readFile(uri);
 
-        const out_data = await this.wasmApi.optimise(in_data, level, this.getWasmStripLevel(strip));
+        if (this.getConfigPreferBundeled()) {
+            //this.optimiseDataWasm(in_data, level, strip, zopfli);
+            //const [out_data, savings] = await this.optimiseDataHost(in_data, level, strip, zopfli);
+        }
+
+        const [out_data, savings] = await this.optimiseData(in_data, level, strip, zopfli);
 
         await vscode.workspace.fs.writeFile(uri, out_data);
-    }
 
-    public async optimiseData(data: Uint8Array, level: number, strip: OxipngStripLevel): Promise<Uint8Array> {
-        return this.optimiseDataWasm(data, level, strip);
-    }
-
-    public async optimiseFile(uri: vscode.Uri, level: number, strip: OxipngStripLevel) {
-        return this.optimiseFileWasm(uri, level, strip);
+        return savings;
     }
 }
 
-export { OxipngStripLevel, OxipngOptimiser };
+export { OxipngStripLevel, OxipngSavings, OxipngOptimiser };

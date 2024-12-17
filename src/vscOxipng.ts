@@ -21,7 +21,7 @@ export namespace vscOxipng {
         export type Promisify<T> = $wcm.$imports.Promisify<T>;
     }
     export type Exports = {
-        optimise: (data: Uint8Array, preset: u8, strip: StripMetadata) => Uint8Array;
+        optimise: (data: Uint8Array, preset: u8, strip: StripMetadata, zopfli: boolean) => Uint8Array;
     };
     export namespace Exports {
         export type Promisified = $wcm.$exports.Promisify<Exports>;
@@ -43,6 +43,7 @@ export namespace vscOxipng.$ {
                 ["data", new $wcm.Uint8ArrayType()],
                 ["preset", $wcm.u8],
                 ["strip", StripMetadata],
+                ["zopfli", $wcm.bool],
             ],
             new $wcm.Uint8ArrayType()
         );
@@ -78,6 +79,7 @@ export namespace vscOxipng._ {
             data_len: i32,
             preset: i32,
             strip_StripMetadata: i32,
+            zopfli: i32,
             result: ptr<Uint8Array>
         ) => void;
     };
