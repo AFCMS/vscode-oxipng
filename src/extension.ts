@@ -36,8 +36,6 @@ function showNoOxipng() {
 }
 
 export async function activate(context: vscode.ExtensionContext) {
-    console.log('Congratulations, your extension "oxipng" is now active!');
-
     const gitExt = vscode.extensions.getExtension<GitExtension>("vscode.git")?.exports;
 
     const gitApi = gitExt?.getAPI(1);
