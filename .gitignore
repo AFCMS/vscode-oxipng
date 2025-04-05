@@ -8,3 +8,5 @@ node_modules
 /target
 
 test*.png
+
+.idea
