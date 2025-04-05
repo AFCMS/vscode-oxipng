@@ -58,7 +58,7 @@ Since it solely relies on a binary, it won't work in the web version of VSCode.
 
 The original plan was to use a WASM version of `oxipng`, but I never got WASI threads to work and without them the performance is abysmal.
 
-### No exported API yet
+### No exported API yet
 
 I designed the base class to be able to abstract from multiple ways of running oxipng, mostly to be able to support a WASM version in the future.
 
