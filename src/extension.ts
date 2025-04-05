@@ -70,7 +70,7 @@ export async function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        const savings = await api.optimiseFile(param, api.getConfig());
+        const savings = await api.optimiseFile(param, api.getConfig(param));
 
         vscode.window.showInformationMessage("Optimised: " + param.fsPath);
         vscode.window.showInformationMessage(savingsString(savings));
@@ -107,7 +107,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             message: `(${i + 1}/${pngFilesCount}) ` + fileName(file),
                         });
 
-                        const savings = await api.optimiseFile(file, api.getConfig());
+                        const savings = await api.optimiseFile(file, api.getConfig(file));
 
                         overallSavings.in_len += savings.in_len;
                         overallSavings.out_len += savings.out_len;
@@ -184,7 +184,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         });
 
                         const in_data = await vscode.workspace.fs.readFile(file);
-                        const [out_data, savings] = await api.optimiseData(in_data, api.getConfig());
+                        const [out_data, savings] = await api.optimiseData(in_data, api.getConfig(file));
 
                         await new Promise((resolve) => setTimeout(resolve, 2000));
 

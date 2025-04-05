@@ -98,10 +98,8 @@ class OxipngOptimiser {
         return options;
     }
 
-    // TODO: context aware config detection (workspace folder, uri, etc)
-
-    public getConfigStripLevel(): OxipngStripLevel {
-        const t = vscode.workspace.getConfiguration("oxipng").get<string>("stripLevel");
+    public getConfigStripLevel(scope?: vscode.ConfigurationScope): OxipngStripLevel {
+        const t = vscode.workspace.getConfiguration("oxipng", scope).get<string>("stripLevel");
 
         switch (t) {
             case "none":
@@ -115,27 +113,27 @@ class OxipngOptimiser {
         }
     }
 
-    public getConfigHostBinary(): string | undefined {
-        return vscode.workspace.getConfiguration("oxipng").get<string>("hostBinary");
+    public getConfigHostBinary(scope?: vscode.ConfigurationScope): string | undefined {
+        return vscode.workspace.getConfiguration("oxipng", scope).get<string>("hostBinary");
     }
 
-    public getConfigOptimisationLevel(): number {
-        const ol = vscode.workspace.getConfiguration("oxipng").get<number>("optimisationLevel");
+    public getConfigOptimisationLevel(scope?: vscode.ConfigurationScope): number {
+        const ol = vscode.workspace.getConfiguration("oxipng", scope).get<number>("optimisationLevel");
         return ol !== undefined && ol >= 0 && ol <= 6 ? ol : 2;
     }
 
-    public getConfigZopfli(): boolean {
-        return vscode.workspace.getConfiguration("oxipng").get<boolean>("useZopfli") === true;
+    public getConfigZopfli(scope?: vscode.ConfigurationScope): boolean {
+        return vscode.workspace.getConfiguration("oxipng", scope).get<boolean>("useZopfli") === true;
     }
 
     /**
      * Use to call optimiseData or optimiseFile with workspace configuration
      */
-    public getConfig(): OxipngConfig {
+    public getConfig(scope?: vscode.ConfigurationScope): OxipngConfig {
         return {
-            level: this.getConfigOptimisationLevel(),
-            strip: this.getConfigStripLevel(),
-            zopfli: this.getConfigZopfli(),
+            level: this.getConfigOptimisationLevel(scope),
+            strip: this.getConfigStripLevel(scope),
+            zopfli: this.getConfigZopfli(scope),
         };
     }
 
