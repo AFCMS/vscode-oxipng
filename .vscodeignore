@@ -20,3 +20,4 @@ Cargo.toml
 .nvmrc
 wit/**
 *.png
+.idea

@@ -60,7 +60,7 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
     const commandOptimise = vscode.commands.registerCommand("oxipng.optimisePng", async (param: vscode.Uri) => {
-        const savings = await api.optimiseFile(param, 2, OxipngStripLevel.Safe, true);
+        const savings = await api.optimiseFile(param, api.getConfig());
 
         vscode.window.showInformationMessage("Optimised: " + param.fsPath);
         vscode.window.showInformationMessage(savingsString(savings));
@@ -92,7 +92,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             message: `(${i + 1}/${pngFilesCount}) ` + fileName(file),
                         });
 
-                        const savings = await api.optimiseFile(file, ...api.getConfig());
+                        const savings = await api.optimiseFile(file, api.getConfig());
 
                         overallSavings.in_len += savings.in_len;
                         overallSavings.out_len += savings.out_len;
@@ -164,7 +164,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         });
 
                         const in_data = await vscode.workspace.fs.readFile(file);
-                        const [out_data, savings] = await api.optimiseData(in_data, ...api.getConfig());
+                        const [out_data, savings] = await api.optimiseData(in_data, api.getConfig());
 
                         await new Promise((resolve) => setTimeout(resolve, 2000));
 

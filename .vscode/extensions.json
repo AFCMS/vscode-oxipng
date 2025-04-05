@@ -3,8 +3,6 @@
         "dbaeumer.vscode-eslint",
         "connor4312.esbuild-problem-matchers",
         "ms-vscode.extension-test-runner",
-        "bytecodealliance.wit-idl",
-        "rust-lang.rust-analyzer",
         "editorconfig.editorconfig"
     ]
 }

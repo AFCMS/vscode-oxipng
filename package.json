@@ -11,7 +11,7 @@
     "pricing": "Free",
     "license": "MIT",
     "engines": {
-        "vscode": "^1.96.0"
+        "vscode": "^1.98.0"
     },
     "extensionDependencies": [
         "vscode.git"
@@ -101,11 +101,6 @@
                         ],
                         "ignoreSync": true
                     },
-                    "oxipng.preferBundled": {
-                        "type": "boolean",
-                        "markdownDescription": "Prefer to use the bundled WASM oxipng even if a host binary is provided",
-                        "default": false
-                    },
                     "oxipng.optimisationLevel": {
                         "markdownDescription": "The optimisation level preset to use. The default level 2 is quite fast and provides good compression. Lower levels are faster, higher levels provide better compression, though with increasingly diminishing returns.",
                         "type": "number",
@@ -155,28 +150,25 @@
     },
     "scripts": {
         "vscode:prepublish": "pnpm run package",
-        "build:dev": "tsx esbuild.config.mts && cargo build --target wasm32-unknown-unknown",
-        "build:prod": "tsx esbuild.config.mts --production && cargo build --target wasm32-unknown-unknown --release",
+        "build:dev": "tsx esbuild.config.mts",
+        "build:prod": "tsx esbuild.config.mts --production",
+        "build:types": "tsc --declaration ./src/optimiser.ts --emitDeclarationOnly --outFile ./dist/oxipng.d.ts",
         "package": "pnpm run check-types && pnpm run lint && pnpm run build:prod",
         "check-types": "tsc --noEmit",
         "lint": "eslint src",
-        "generate:model": "wit2ts --outDir ./src ./wit",
         "serve": "serve --cors -l 5000 --ssl-cert $HOME/certs/localhost.pem --ssl-key $HOME/certs/localhost-key.pem"
     },
     "devDependencies": {
-        "@types/node": "20.x",
-        "@types/vscode": "^1.96.0",
-        "@typescript-eslint/eslint-plugin": "^8.14.0",
-        "@typescript-eslint/parser": "^8.14.0",
-        "esbuild": "^0.24.0",
-        "esbuild-plugins-node-modules-polyfill": "^1.6.8",
-        "eslint": "^9.15.0",
+        "@types/node": "22.x",
+        "@types/vscode": "^1.98.0",
+        "@typescript-eslint/eslint-plugin": "^8.29.0",
+        "@typescript-eslint/parser": "^8.29.0",
+        "esbuild": "^0.25.2",
+        "esbuild-plugins-node-modules-polyfill": "^1.7.0",
+        "eslint": "^9.24.0",
         "serve": "^14.2.4",
-        "tsx": "^4.19.2",
-        "typescript": "^5.6.3"
+        "tsx": "^4.19.3",
+        "typescript": "^5.8.3"
     },
-    "packageManager": "pnpm@9.13.2",
-    "dependencies": {
-        "@vscode/wasm-component-model": "^1.0.1"
-    }
+    "packageManager": "pnpm@10.7.1"
 }

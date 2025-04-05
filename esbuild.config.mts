@@ -27,7 +27,7 @@ const esbuildProblemMatcherPlugin: esbuild.Plugin = {
 
 async function main() {
     const sharedOptions: esbuild.BuildOptions = {
-        entryPoints: ["src/extension.ts", "src/worker.ts"],
+        entryPoints: ["src/extension.ts"],
         bundle: true,
         target: "es2020",
         format: "cjs",
