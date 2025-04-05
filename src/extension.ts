@@ -25,6 +25,16 @@ function savingsStringPercent(s: OxipngSavings): string {
         : `(${(((s.out_len - s.in_len) / s.in_len) * 100).toFixed(2)}% larger)`;
 }
 
+function showNoOxipng() {
+    vscode.window.showErrorMessage("Invalid Oxipng host configuration", "Edit", "Download").then((value) => {
+        if (value === "Edit") {
+            vscode.commands.executeCommand("workbench.action.openSettings", "oxipng.hostBinary");
+        } else if (value === "Download") {
+            vscode.env.openExternal(vscode.Uri.parse("https://github.com/shssoichiro/oxipng"));
+        }
+    });
+}
+
 export async function activate(context: vscode.ExtensionContext) {
     console.log('Congratulations, your extension "oxipng" is now active!');
 
@@ -51,15 +61,17 @@ export async function activate(context: vscode.ExtensionContext) {
         if (version) {
             vscode.window.showInformationMessage(`Oxipng version: ${version.major}.${version.minor}.${version.patch}`);
         } else {
-            vscode.window.showErrorMessage("Invalid Oxipng host configuration", "Edit").then((value) => {
-                if (value === "Edit") {
-                    vscode.commands.executeCommand("workbench.action.openSettings", "oxipng.hostBinary");
-                }
-            });
+            showNoOxipng();
+            return;
         }
     });
 
     const commandOptimise = vscode.commands.registerCommand("oxipng.optimisePng", async (param: vscode.Uri) => {
+        if (!api.checkHostInstall()) {
+            showNoOxipng();
+            return;
+        }
+
         const savings = await api.optimiseFile(param, api.getConfig());
 
         vscode.window.showInformationMessage("Optimised: " + param.fsPath);
@@ -69,6 +81,11 @@ export async function activate(context: vscode.ExtensionContext) {
     const commandOptimiseFolder = vscode.commands.registerCommand(
         "oxipng.optimisePngFolder",
         async (param: vscode.Uri) => {
+            if (!api.checkHostInstall()) {
+                showNoOxipng();
+                return;
+            }
+
             const files = await readDirectoryRecursivePNGs(param);
 
             const pngFilesCount = files.length;
@@ -109,6 +126,11 @@ export async function activate(context: vscode.ExtensionContext) {
     const commandOptimiseGitChanges = vscode.commands.registerCommand(
         "oxipng.optimisePngGitChanges",
         async (param: vscode.SourceControl | undefined) => {
+            if (!api.checkHostInstall()) {
+                showNoOxipng();
+                return;
+            }
+
             if (!gitApi) {
                 vscode.window.showErrorMessage("Git extension isn't enabled");
                 return;
