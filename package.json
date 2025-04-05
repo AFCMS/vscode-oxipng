@@ -94,10 +94,11 @@
                 "properties": {
                     "oxipng.hostBinary": {
                         "type": "string",
-                        "markdownDescription": "Path to a oxipng host binary. If not provided, the extension will use the bundled WASM oxipng.",
+                        "markdownDescription": "Path to a oxipng binary.",
                         "default": "",
                         "examples": [
-                            "~/.cargo/bin/oxipng"
+                            "/home/user/.cargo/bin/oxipng",
+                            "C:\\Users\\user\\.cargo\\bin\\oxipng"
                         ],
                         "ignoreSync": true
                     },
