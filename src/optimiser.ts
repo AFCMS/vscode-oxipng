@@ -120,7 +120,8 @@ class OxipngOptimiser {
     }
 
     public getConfigOptimisationLevel(): number {
-        return vscode.workspace.getConfiguration("oxipng").get<number>("optimisationLevel") || 2;
+        const ol = vscode.workspace.getConfiguration("oxipng").get<number>("optimisationLevel");
+        return ol !== undefined && ol >= 0 && ol <= 6 ? ol : 2;
     }
 
     public getConfigZopfli(): boolean {
