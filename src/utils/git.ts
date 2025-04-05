@@ -8,7 +8,7 @@ import * as vscode from "vscode";
 import { Repository } from "../types/git";
 
 async function gitModifiedFiles(repo: Repository): Promise<vscode.Uri[]> {
-    return (await repo.diffWithHEAD()).map((change) => change.uri);
+    return (await repo.diffIndexWithHEAD()).map((change) => change.uri);
 }
 
 async function gitModifiedPNGs(repo: Repository): Promise<vscode.Uri[]> {

@@ -49,7 +49,7 @@
             },
             {
                 "command": "oxipng.optimisePngGitChanges",
-                "title": "Oxipng: Optimise PNGs in Git working changes"
+                "title": "Oxipng: Optimise PNGs in Git staged changes"
             },
             {
                 "command": "oxipng.checkHostInstall",
