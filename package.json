@@ -2,6 +2,7 @@
     "name": "oxipng",
     "displayName": "Oxipng",
     "description": "",
+    "type": "module",
     "version": "0.0.1",
     "publisher": "AFCMS",
     "repository": {

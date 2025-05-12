@@ -30,7 +30,6 @@ async function main() {
         entryPoints: ["src/extension.ts"],
         bundle: true,
         target: "es2020",
-        format: "cjs",
         external: ["vscode"],
         minify: production,
         sourcemap: !production,
@@ -40,6 +39,7 @@ async function main() {
     const mainOptions: esbuild.BuildOptions = {
         ...sharedOptions,
         platform: "node",
+        format: "esm",
         outdir: "dist/main",
         plugins: [esbuildProblemMatcherPlugin],
     };
@@ -47,6 +47,7 @@ async function main() {
     const webOptions: esbuild.BuildOptions = {
         ...sharedOptions,
         platform: "browser",
+        format: "cjs",
         outdir: "dist/web",
         plugins: [
             nodeModulesPolyfillPlugin({
