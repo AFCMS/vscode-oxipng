@@ -11,7 +11,7 @@
     "pricing": "Free",
     "license": "MIT",
     "engines": {
-        "vscode": "^1.98.0"
+        "vscode": "^1.100.0"
     },
     "extensionDependencies": [
         "vscode.git"
@@ -161,15 +161,15 @@
     },
     "devDependencies": {
         "@types/node": "22.x",
-        "@types/vscode": "^1.98.0",
-        "@typescript-eslint/eslint-plugin": "^8.29.0",
-        "@typescript-eslint/parser": "^8.29.0",
-        "esbuild": "^0.25.2",
+        "@types/vscode": "^1.100.0",
+        "@typescript-eslint/eslint-plugin": "^8.32.0",
+        "@typescript-eslint/parser": "^8.32.0",
+        "esbuild": "^0.25.4",
         "esbuild-plugins-node-modules-polyfill": "^1.7.0",
-        "eslint": "^9.24.0",
+        "eslint": "^9.26.0",
         "serve": "^14.2.4",
-        "tsx": "^4.19.3",
+        "tsx": "^4.19.4",
         "typescript": "^5.8.3"
     },
-    "packageManager": "pnpm@10.7.1"
+    "packageManager": "pnpm@10.10.0"
 }
