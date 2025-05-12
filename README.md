@@ -74,3 +74,7 @@ I plan to export the `OxipngOptimiser` class, as well as it's TypeScript definit
 ### 0.0.1
 
 Initial release
+
+### 0.0.2
+
+Switch to ESM modules
