@@ -8,22 +8,9 @@ import * as vscode from "vscode";
 import { GitExtension, Repository } from "./types/git";
 import { gitModifiedPNGs } from "./utils/git";
 import { fileName, readDirectoryRecursivePNGs } from "./utils/files";
-import { OxipngOptimiser, OxipngSavings, OxipngStripLevel } from "./optimiser";
-
-/**
- * Returns a string describing the savings in bytes and percentage.
- */
-function savingsString(s: OxipngSavings): string {
-    return s.in_len >= s.out_len
-        ? `${s.out_len} bytes (${(((s.in_len - s.out_len) / s.in_len) * 100).toFixed(2)}% smaller)`
-        : `${s.out_len} bytes (${(((s.out_len - s.in_len) / s.in_len) * 100).toFixed(2)}% larger)`;
-}
-
-function savingsStringPercent(s: OxipngSavings): string {
-    return s.in_len >= s.out_len
-        ? `(${(((s.in_len - s.out_len) / s.in_len) * 100).toFixed(2)}% smaller)`
-        : `(${(((s.out_len - s.in_len) / s.in_len) * 100).toFixed(2)}% larger)`;
-}
+import { OxipngOptimiser, OxipngSavings, OxipngStripLevel } from "./api/optimiser";
+import { OxipngCheckHostInstallTool, OxipngOptimisePNGsTool } from "./api/llm-tool";
+import { savingsString, savingsStringPercent } from "./utils/savings";
 
 function showNoOxipng() {
     vscode.window.showErrorMessage("Invalid Oxipng host configuration", "Edit", "Download").then((value) => {
@@ -202,11 +189,20 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     );
 
+    const llmToolCheckHostInstall = vscode.lm.registerTool(
+        "oxipng-check_host_install",
+        new OxipngCheckHostInstallTool(api)
+    );
+
+    const llmToolOptimisePNGs = vscode.lm.registerTool("oxipng-optimise_pngs", new OxipngOptimisePNGsTool(api));
+
     context.subscriptions.push(
         commandCheckHostInstall,
         commandOptimise,
         commandOptimiseFolder,
-        commandOptimiseGitChanges
+        commandOptimiseGitChanges,
+        llmToolCheckHostInstall,
+        llmToolOptimisePNGs
     );
 }
 

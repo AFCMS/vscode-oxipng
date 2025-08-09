@@ -78,3 +78,7 @@ Initial release
 ### 0.0.2
 
 Switch to ESM modules
+
+### 0.0.3
+
+Provide a `languageModelTools` entry to allow the use of the `oxipng` binary from LLMs.

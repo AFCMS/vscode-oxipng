@@ -148,6 +148,48 @@
                     }
                 }
             }
+        ],
+        "languageModelTools": [
+            {
+                "name": "oxipng-check_host_install",
+                "displayName": "Oxipng Check Installation",
+                "userDescription": "Check if the extension can use Oxipng",
+                "modelDescription": "Check if Oxipng can be used by the extension. This tool is useful for ensuring that the Oxipng extension can function correctly",
+                "canBeReferencedInPrompt": true,
+                "toolReferenceName": "oxipngCheckHost",
+                "tags": [
+                    "image",
+                    "optimisation"
+                ],
+                "icon": "$(info)"
+            },
+            {
+                "name": "oxipng-optimise_pngs",
+                "displayName": "Oxipng Optimise PNGs",
+                "userDescription": "Optimise PNG images using the Oxipng binary",
+                "modelDescription": "Optimise PNG images using the Oxipng binary. This tool can be used to reduce the file size of PNG images without losing quality",
+                "canBeReferencedInPrompt": true,
+                "toolReferenceName": "oxipngOptimisePngs",
+                "tags": [
+                    "image",
+                    "optimisation"
+                ],
+                "icon": "$(tools)",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "files": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "type": "string",
+                                "format": "uri",
+                                "description": "A list of absolute file paths to PNG images (.png or .apng extensions) to be optimised, the paths MUST NOT contain a `file://` prefix"
+                            }
+                        }
+                    }
+                }
+            }
         ]
     },
     "scripts": {
