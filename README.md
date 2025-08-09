@@ -2,7 +2,7 @@
 
 ## Features
 
-This VSCode Extension aims to integrate with the [**oxipng**](https://github.com/shssoichiro/oxipng) PNG's optimisation tool.
+This VSCode Extension aims to integrate with the [**oxipng**](https://github.com/oxipng/oxipng) PNG's optimisation tool.
 
 It isn't affiliated with the oxipng project.
 

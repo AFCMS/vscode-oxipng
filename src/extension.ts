@@ -30,7 +30,7 @@ function showNoOxipng() {
         if (value === "Edit") {
             vscode.commands.executeCommand("workbench.action.openSettings", "oxipng.hostBinary");
         } else if (value === "Download") {
-            vscode.env.openExternal(vscode.Uri.parse("https://github.com/shssoichiro/oxipng"));
+            vscode.env.openExternal(vscode.Uri.parse("https://github.com/oxipng/oxipng"));
         }
     });
 }
