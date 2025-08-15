@@ -203,7 +203,7 @@
         "serve": "serve --cors -l 5000 --ssl-cert $HOME/certs/localhost.pem --ssl-key $HOME/certs/localhost-key.pem"
     },
     "devDependencies": {
-        "@types/node": "22.x",
+        "@types/node": "24.x",
         "@types/vscode": "^1.102.0",
         "@typescript-eslint/eslint-plugin": "^8.39.0",
         "@typescript-eslint/parser": "^8.39.0",
