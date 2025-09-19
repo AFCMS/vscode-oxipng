@@ -3,7 +3,7 @@
     "displayName": "Oxipng",
     "description": "",
     "type": "module",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "publisher": "AFCMS",
     "repository": {
         "type": "git",
@@ -205,14 +205,14 @@
     "devDependencies": {
         "@types/node": "22.x",
         "@types/vscode": "^1.102.0",
-        "@typescript-eslint/eslint-plugin": "^8.39.0",
-        "@typescript-eslint/parser": "^8.39.0",
-        "esbuild": "^0.25.8",
+        "@typescript-eslint/eslint-plugin": "^8.44.0",
+        "@typescript-eslint/parser": "^8.44.0",
+        "esbuild": "^0.25.10",
         "esbuild-plugins-node-modules-polyfill": "^1.7.1",
-        "eslint": "^9.33.0",
-        "serve": "^14.2.4",
-        "tsx": "^4.20.3",
+        "eslint": "^9.35.0",
+        "serve": "^14.2.5",
+        "tsx": "^4.20.5",
         "typescript": "^5.9.2"
     },
-    "packageManager": "pnpm@10.14.0"
+    "packageManager": "pnpm@10.17.0"
 }
