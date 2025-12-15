@@ -194,12 +194,12 @@
     },
     "scripts": {
         "vscode:prepublish": "pnpm run package",
-        "build:dev": "tsx esbuild.config.mts",
-        "build:prod": "tsx esbuild.config.mts --production",
+        "build:dev": "tsx esbuild.config.ts",
+        "build:prod": "tsx esbuild.config.ts --production",
         "build:types": "tsc --declaration ./src/optimiser.ts --emitDeclarationOnly --outFile ./dist/oxipng.d.ts",
         "package": "pnpm run check-types && pnpm run lint && pnpm run build:prod",
         "check-types": "tsc --noEmit",
-        "lint": "eslint src",
+        "lint": "eslint src --flag unstable_native_nodejs_ts_config",
         "serve": "serve --cors -l 5000 --ssl-cert $HOME/certs/localhost.pem --ssl-key $HOME/certs/localhost-key.pem"
     },
     "devDependencies": {
