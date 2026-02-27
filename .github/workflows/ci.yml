@@ -52,7 +52,7 @@ jobs:
         run: pnpx @vscode/vsce package --no-dependencies
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: vscode-extension
           path: "*.vsix"
