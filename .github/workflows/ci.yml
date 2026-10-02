@@ -15,6 +15,12 @@ on:
         required: false
         default: "false"
 
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   vscode:
     name: VSCode Extension
@@ -23,17 +29,10 @@ jobs:
       RUST_CHANNEL: stable
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-
-      - name: Install NodeJS
-        uses: actions/setup-node@v7
-        with:
-          node-version-file: ".nvmrc"
-
-      - name: Enable PNPM
-        run: corepack enable pnpm
+          persist-credentials: false
 
       # - name: Install Rust toolchain
       #   run: |
@@ -42,8 +41,10 @@ jobs:
       #     rustup default ${{ env.RUST_CHANNEL }}
       #     rustup target add wasm32-unknown-unknown
 
-      - name: Install Dependencies
-        run: pnpm install
+      - name: Setup PNPM
+        uses: pnpm/setup@fbda4c85fc2e1e08721cd8763afea8f48d60f024 # v3.0.0
+        with:
+          install: true
 
       - name: Lint
         run: pnpm run lint
@@ -52,7 +53,7 @@ jobs:
         run: pnpx @vscode/vsce package --no-dependencies
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: vscode-extension
           path: "*.vsix"
