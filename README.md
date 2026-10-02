@@ -82,3 +82,7 @@ Switch to ESM modules
 ### 0.0.3
 
 Provide a `languageModelTools` entry to allow the use of the `oxipng` binary from LLMs.
+
+### 0.1.0
+
+Switch to Rolldown, update dependencies.

@@ -13,3 +13,7 @@
 ## [0.0.3] - 2025-08-09
 
 - Provide a `languageModelTools` entry to allow the use of the `oxipng` binary from LLMs.
+
+## [0.1.0] - 2026-10-02
+
+- Switch to Rolldown, update dependencies.
