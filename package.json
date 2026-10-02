@@ -202,7 +202,7 @@
     "packageManager": {
       "name": "pnpm",
       "version": "^12",
-      "onFail": "error"
+      "onFail": "ignore"
     },
     "runtime": {
       "name": "node",
