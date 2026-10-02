@@ -6,13 +6,13 @@ This VSCode Extension aims to integrate with the [**oxipng**](https://github.com
 
 It isn't affiliated with the oxipng project.
 
--   Support for workspaces, Git, remote and local development.
--   Expose common settings.
+- Support for workspaces, Git, remote and local development.
+- Expose common settings.
 
 ## Download
 
--   [Marketplace](https://marketplace.visualstudio.com/items?itemName=AFCMS.oxipng)
--   [OpenVSX](https://open-vsx.org/extension/AFCMS/oxipng)
+- [Marketplace](https://marketplace.visualstudio.com/items?itemName=AFCMS.oxipng)
+- [OpenVSX](https://open-vsx.org/extension/AFCMS/oxipng)
 
 ## Requirements
 
@@ -22,10 +22,10 @@ Some features require the builtin Git extension, which is enabled by default.
 
 This extension contributes the following settings:
 
--   `oxipng.hostBinary`: Path to the `oxipng` binary.
--   `oxipng.optimisationLevel`: The optimisation level preset to use. The default level 2. (0-6)
--   `oxipng.stripMetadata`: `none`, `safe`, `all`. The default is `none`.
--   `oxipng.useZopfli`: Use the Zopfli algorithm. The default is `false`.
+- `oxipng.hostBinary`: Path to the `oxipng` binary.
+- `oxipng.optimisationLevel`: The optimisation level preset to use. The default level 2. (0-6)
+- `oxipng.stripMetadata`: `none`, `safe`, `all`. The default is `none`.
+- `oxipng.useZopfli`: Use the Zopfli algorithm. The default is `false`.
 
 By design, not all of oxipng params are configurable. The extension aims to be simple and easy to use.
 

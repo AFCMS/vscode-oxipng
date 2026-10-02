@@ -1,21 +1,23 @@
 {
-    "compilerOptions": {
-        "module": "ES2022",
-        "moduleResolution": "bundler",
-        "target": "ES2022",
-        "lib": [
-            "ES2022"
-        ],
-        "sourceMap": true,
-        "rootDir": "src",
-        "strict": true, /* enable all strict type-checking options */
-        /* Additional Checks */
-        // "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
-        // "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
-        // "noUnusedParameters": true,  /* Report errors on unused parameters. */
-    },
-    "exclude": [
-        "eslint.config.ts",
-        "esbuild.config.ts",
-    ]
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": ["es2023"],
+    "moduleDetection": "force",
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "types": ["node"],
+    "strict": true,
+    "noUnusedLocals": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "outDir": "out",
+    "sourceMap": true,
+    "rootDir": "src"
+  },
+  "exclude": ["oxfmt.config.ts", "oxlint.config.ts", "rolldown.config.ts"]
 }

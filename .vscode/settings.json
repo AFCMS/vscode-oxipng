@@ -1,9 +1,44 @@
 {
-    "search.exclude": {
-        "target": true,
-        "dist": true
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  "editor.detectIndentation": false,
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "oxc.fmt.configPath": "oxfmt.config.ts",
+  "oxc.configPath": "oxlint.config.ts",
+  "search.exclude": {
+    "target": true,
+    "dist": true
+  },
+  "files.associations": {
+    "**/.github/workflows/*.{yml,yaml}": "github-actions-workflow"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode",
+    "editor.tabSize": 2
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode",
+    "editor.tabSize": 2
+  },
+  "[json]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode",
+    "editor.tabSize": 2,
+    "editor.quickSuggestions": {
+      "strings": true
     },
-    "typescript.tsc.autoDetect": "off",
-    "editor.formatOnPaste": true,
-    "editor.formatOnSave": true
+    "editor.suggest.insertMode": "replace"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode",
+    "editor.tabSize": 2,
+    "editor.quickSuggestions": {
+      "strings": true
+    },
+    "editor.suggest.insertMode": "replace"
+  },
+  "[github-actions-workflow]": {
+    "editor.tabSize": 2
+  }
 }

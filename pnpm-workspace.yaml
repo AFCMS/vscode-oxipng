@@ -1,2 +1,4 @@
-onlyBuiltDependencies:
-  - esbuild
+allowBuilds:
+  esbuild: true
+minimumReleaseAgeExclude:
+  - "@types/vscode@1.140.0"

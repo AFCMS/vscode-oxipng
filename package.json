@@ -1,218 +1,227 @@
 {
-    "name": "oxipng",
-    "displayName": "Oxipng",
-    "description": "",
-    "type": "module",
-    "version": "0.0.3",
-    "publisher": "AFCMS",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/AFCMS/vscode-oxipng"
-    },
-    "pricing": "Free",
-    "license": "MIT",
-    "engines": {
-        "vscode": "^1.107.0"
-    },
-    "extensionDependencies": [
-        "vscode.git"
+  "name": "oxipng",
+  "displayName": "Oxipng",
+  "version": "0.0.3",
+  "description": "",
+  "categories": [
+    "Other"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AFCMS/vscode-oxipng"
+  },
+  "publisher": "AFCMS",
+  "type": "module",
+  "main": "./dist/main/extension.js",
+  "scripts": {
+    "vscode:prepublish": "pnpm run package",
+    "build:dev": "rolldown --config rolldown.config.ts",
+    "build:prod": "rolldown --config rolldown.config.ts",
+    "build:types": "tsc --project tsconfig.types.json && node --input-type=module -e \"import { renameSync } from 'node:fs'; renameSync('dist/optimiser.d.ts', 'dist/oxipng.d.ts');\"",
+    "package": "pnpm run check-types && pnpm run lint && pnpm run build:prod",
+    "check-types": "tsc --noEmit",
+    "lint": "oxlint",
+    "serve": "serve --cors -l 5000 --ssl-cert $HOME/certs/localhost.pem --ssl-key $HOME/certs/localhost-key.pem"
+  },
+  "devDependencies": {
+    "@types/node": "24.x",
+    "@types/vscode": "^1.140.0",
+    "oxfmt": "^0.71.0",
+    "oxlint": "^1.86.0",
+    "oxlint-tsgolint": "^7.0.2003",
+    "rolldown": "^1.2.12",
+    "serve": "^14.2.6",
+    "typescript": "^7.0.2"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "oxipng.optimisePng",
+        "title": "Oxipng: Optimise PNG"
+      },
+      {
+        "command": "oxipng.optimisePngFolder",
+        "title": "Oxipng: Optimise all PNGs"
+      },
+      {
+        "command": "oxipng.optimisePngGitChanges",
+        "title": "Oxipng: Optimise PNGs in Git staged changes"
+      },
+      {
+        "command": "oxipng.checkHostInstall",
+        "title": "Oxipng: Check host binary install"
+      }
     ],
-    "extensionKind": [
-        "workspace",
-        "ui"
-    ],
-    "categories": [
-        "Other"
-    ],
-    "activationEvents": [
-        "workspaceContains:{**/*.png,**/*.apng}"
-    ],
-    "main": "./dist/main/extension.js",
-    "capabilities": {
-        "virtualWorkspaces": true,
-        "untrustedWorkspaces": {
-            "supported": "limited",
-            "description": "Can't access the host binary path in untrusted workspaces.",
-            "restrictedConfigurations": [
-                "oxipng.hostBinary"
-            ]
-        }
-    },
-    "contributes": {
-        "commands": [
-            {
-                "command": "oxipng.optimisePng",
-                "title": "Oxipng: Optimise PNG"
-            },
-            {
-                "command": "oxipng.optimisePngFolder",
-                "title": "Oxipng: Optimise all PNGs"
-            },
-            {
-                "command": "oxipng.optimisePngGitChanges",
-                "title": "Oxipng: Optimise PNGs in Git staged changes"
-            },
-            {
-                "command": "oxipng.checkHostInstall",
-                "title": "Oxipng: Check host binary install"
-            }
-        ],
-        "menus": {
-            "commandPalette": [
-                {
-                    "command": "oxipng.optimisePng",
-                    "when": "false"
-                },
-                {
-                    "command": "oxipng.optimisePngFolder",
-                    "when": "false"
-                },
-                {
-                    "command": "oxipng.checkHostInstall",
-                    "when": "!oxipng.webOnly"
-                }
-            ],
-            "explorer/context": [
-                {
-                    "command": "oxipng.optimisePng",
-                    "when": "!explorerResourceIsFolder && !explorerResourceReadonly && (resourceExtname == '.png' || resourceExtname == '.apng')"
-                },
-                {
-                    "command": "oxipng.optimisePngFolder",
-                    "when": "explorerResourceIsFolder && !explorerResourceReadonly"
-                }
-            ],
-            "scm/title": [
-                {
-                    "command": "oxipng.optimisePngGitChanges",
-                    "when": "scmProvider == 'git'"
-                }
-            ]
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "oxipng.optimisePng",
+          "when": "false"
         },
-        "configuration": [
-            {
-                "title": "Oxipng",
-                "properties": {
-                    "oxipng.hostBinary": {
-                        "type": "string",
-                        "markdownDescription": "Path to a oxipng binary.",
-                        "default": "",
-                        "examples": [
-                            "/home/user/.cargo/bin/oxipng",
-                            "C:\\Users\\user\\.cargo\\bin\\oxipng"
-                        ],
-                        "ignoreSync": true
-                    },
-                    "oxipng.optimisationLevel": {
-                        "markdownDescription": "The optimisation level preset to use. The default level 2 is quite fast and provides good compression. Lower levels are faster, higher levels provide better compression, though with increasingly diminishing returns.",
-                        "type": "number",
-                        "description": "",
-                        "default": 2,
-                        "enum": [
-                            0,
-                            1,
-                            2,
-                            3,
-                            4,
-                            5,
-                            6
-                        ],
-                        "markdownEnumDescriptions": [
-                            "`--zc 5 --fast` (1 trial, determined heuristically)",
-                            "`--zc 10 --fast` (1 trial, determined heuristically)",
-                            "`--zc 11 -f 0,1,6,7 --fast` (4 fast trials, 1 main trial)",
-                            "`--zc 11 -f 0,7,8,9` (4 trials)",
-                            "`--zc 12 -f 0,7,8,9` (4 trials)",
-                            "`--zc 12 -f 0,1,2,5,6,7,8,9` (8 trials)",
-                            "`--zc 12 -f 0-9` (10 trials)"
-                        ]
-                    },
-                    "oxipng.stripMetadata": {
-                        "type": "string",
-                        "default": "none",
-                        "enum": [
-                            "none",
-                            "safe",
-                            "all"
-                        ],
-                        "markdownEnumDescriptions": [
-                            "Do not strip metadata",
-                            "Strip all non-critical chunks, except for the following: cICP, iCCP, sRGB, pHYs, acTL, fcTL, fdAT",
-                            "Strip all non-critical chunks, except for the following: acTL, fcTL, fdAT (used for APNGs frames)"
-                        ]
-                    },
-                    "oxipng.useZopfli": {
-                        "type": "boolean",
-                        "default": false,
-                        "markdownDescription": "Use [Zopfli](https://github.com/google/zopfli) compression algorithm. This is MUCH slower but provides better compression."
-                    }
-                }
-            }
+        {
+          "command": "oxipng.optimisePngFolder",
+          "when": "false"
+        },
+        {
+          "command": "oxipng.checkHostInstall",
+          "when": "!oxipng.webOnly"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "oxipng.optimisePng",
+          "when": "!explorerResourceIsFolder && !explorerResourceReadonly && (resourceExtname == '.png' || resourceExtname == '.apng')"
+        },
+        {
+          "command": "oxipng.optimisePngFolder",
+          "when": "explorerResourceIsFolder && !explorerResourceReadonly"
+        }
+      ],
+      "scm/title": [
+        {
+          "command": "oxipng.optimisePngGitChanges",
+          "when": "scmProvider == 'git'"
+        }
+      ]
+    },
+    "configuration": [
+      {
+        "title": "Oxipng",
+        "properties": {
+          "oxipng.hostBinary": {
+            "type": "string",
+            "markdownDescription": "Path to a oxipng binary.",
+            "default": "",
+            "examples": [
+              "/home/user/.cargo/bin/oxipng",
+              "C:\\Users\\user\\.cargo\\bin\\oxipng"
+            ],
+            "ignoreSync": true
+          },
+          "oxipng.optimisationLevel": {
+            "markdownDescription": "The optimisation level preset to use. The default level 2 is quite fast and provides good compression. Lower levels are faster, higher levels provide better compression, though with increasingly diminishing returns.",
+            "type": "number",
+            "description": "",
+            "default": 2,
+            "enum": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "markdownEnumDescriptions": [
+              "`--zc 5 --fast` (1 trial, determined heuristically)",
+              "`--zc 10 --fast` (1 trial, determined heuristically)",
+              "`--zc 11 -f 0,1,6,7 --fast` (4 fast trials, 1 main trial)",
+              "`--zc 11 -f 0,7,8,9` (4 trials)",
+              "`--zc 12 -f 0,7,8,9` (4 trials)",
+              "`--zc 12 -f 0,1,2,5,6,7,8,9` (8 trials)",
+              "`--zc 12 -f 0-9` (10 trials)"
+            ]
+          },
+          "oxipng.stripMetadata": {
+            "type": "string",
+            "default": "none",
+            "enum": [
+              "none",
+              "safe",
+              "all"
+            ],
+            "markdownEnumDescriptions": [
+              "Do not strip metadata",
+              "Strip all non-critical chunks, except for the following: cICP, iCCP, sRGB, pHYs, acTL, fcTL, fdAT",
+              "Strip all non-critical chunks, except for the following: acTL, fcTL, fdAT (used for APNGs frames)"
+            ]
+          },
+          "oxipng.useZopfli": {
+            "type": "boolean",
+            "default": false,
+            "markdownDescription": "Use [Zopfli](https://github.com/google/zopfli) compression algorithm. This is MUCH slower but provides better compression."
+          }
+        }
+      }
+    ],
+    "languageModelTools": [
+      {
+        "name": "oxipng-check_host_install",
+        "displayName": "Oxipng Check Installation",
+        "userDescription": "Check if the extension can use Oxipng",
+        "modelDescription": "Check if Oxipng can be used by the extension. This tool is useful for ensuring that the Oxipng extension can function correctly",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "oxipngCheckHost",
+        "tags": [
+          "image",
+          "optimisation"
         ],
-        "languageModelTools": [
-            {
-                "name": "oxipng-check_host_install",
-                "displayName": "Oxipng Check Installation",
-                "userDescription": "Check if the extension can use Oxipng",
-                "modelDescription": "Check if Oxipng can be used by the extension. This tool is useful for ensuring that the Oxipng extension can function correctly",
-                "canBeReferencedInPrompt": true,
-                "toolReferenceName": "oxipngCheckHost",
-                "tags": [
-                    "image",
-                    "optimisation"
-                ],
-                "icon": "$(info)"
-            },
-            {
-                "name": "oxipng-optimise_pngs",
-                "displayName": "Oxipng Optimise PNGs",
-                "userDescription": "Optimise PNG images using the Oxipng binary",
-                "modelDescription": "Optimise PNG images using the Oxipng binary. This tool can be used to reduce the file size of PNG images without losing quality",
-                "canBeReferencedInPrompt": true,
-                "toolReferenceName": "oxipngOptimisePngs",
-                "tags": [
-                    "image",
-                    "optimisation"
-                ],
-                "icon": "$(tools)",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {
-                        "files": {
-                            "type": "array",
-                            "minItems": 1,
-                            "items": {
-                                "type": "string",
-                                "format": "uri",
-                                "description": "A list of absolute file paths to PNG images (.png or .apng extensions) to be optimised, the paths MUST NOT contain a `file://` prefix"
-                            }
-                        }
-                    }
-                }
+        "icon": "$(info)"
+      },
+      {
+        "name": "oxipng-optimise_pngs",
+        "displayName": "Oxipng Optimise PNGs",
+        "userDescription": "Optimise PNG images using the Oxipng binary",
+        "modelDescription": "Optimise PNG images using the Oxipng binary. This tool can be used to reduce the file size of PNG images without losing quality",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "oxipngOptimisePngs",
+        "tags": [
+          "image",
+          "optimisation"
+        ],
+        "icon": "$(tools)",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "files": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "format": "uri",
+                "description": "A list of absolute file paths to PNG images (.png or .apng extensions) to be optimised, the paths MUST NOT contain a `file://` prefix"
+              }
             }
-        ]
+          }
+        }
+      }
+    ]
+  },
+  "activationEvents": [
+    "workspaceContains:{**/*.png,**/*.apng}"
+  ],
+  "extensionDependencies": [
+    "vscode.git"
+  ],
+  "extensionKind": [
+    "ui",
+    "workspace"
+  ],
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^12",
+      "onFail": "error"
     },
-    "scripts": {
-        "vscode:prepublish": "pnpm run package",
-        "build:dev": "tsx esbuild.config.ts",
-        "build:prod": "tsx esbuild.config.ts --production",
-        "build:types": "tsc --declaration ./src/optimiser.ts --emitDeclarationOnly --outFile ./dist/oxipng.d.ts",
-        "package": "pnpm run check-types && pnpm run lint && pnpm run build:prod",
-        "check-types": "tsc --noEmit",
-        "lint": "eslint src --flag unstable_native_nodejs_ts_config",
-        "serve": "serve --cors -l 5000 --ssl-cert $HOME/certs/localhost.pem --ssl-key $HOME/certs/localhost-key.pem"
-    },
-    "devDependencies": {
-        "@types/node": "24.x",
-        "@types/vscode": "^1.107.0",
-        "@typescript-eslint/eslint-plugin": "^8.50.0",
-        "@typescript-eslint/parser": "^8.50.0",
-        "esbuild": "^0.27.1",
-        "esbuild-plugins-node-modules-polyfill": "^1.7.1",
-        "eslint": "^9.39.2",
-        "serve": "^14.2.5",
-        "tsx": "^4.21.0",
-        "typescript": "^5.9.3"
-    },
-    "packageManager": "pnpm@10.26.0"
+    "runtime": {
+      "name": "node",
+      "version": "^24",
+      "onFail": "error"
+    }
+  },
+  "engines": {
+    "vscode": "^1.140.0"
+  },
+  "capabilities": {
+    "virtualWorkspaces": true,
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "Can't access the host binary path in untrusted workspaces.",
+      "restrictedConfigurations": [
+        "oxipng.hostBinary"
+      ]
+    }
+  },
+  "pricing": "Free"
 }
