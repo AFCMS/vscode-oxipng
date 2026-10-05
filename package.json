@@ -25,7 +25,7 @@
     "serve": "serve --cors -l 5000 --ssl-cert $HOME/certs/localhost.pem --ssl-key $HOME/certs/localhost-key.pem"
   },
   "devDependencies": {
-    "@types/node": "24.x",
+    "@types/node": "26.x",
     "@types/vscode": "^1.140.0",
     "oxfmt": "^0.71.0",
     "oxlint": "^1.86.0",
