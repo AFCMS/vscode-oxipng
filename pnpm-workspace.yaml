@@ -1,4 +1,6 @@
-allowBuilds:
-  esbuild: true
-minimumReleaseAgeExclude:
-  - "@types/vscode@1.140.0"
+---
+blockExoticSubdeps: true
+minimumReleaseAge: 360 # 6 hours
+trustPolicy: no-downgrade
+
+pmOnFail: ignore
